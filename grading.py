@@ -14,22 +14,30 @@ def mass_extract():
       tar.close()
       os.remove(file)
 
-def generate_blank_grading_file(possible_points = 50, names_perms_file = "names_perms.txt"):
+def generate_template_files(possible_points = 50, num_questions = 10, names_perms_file = "names_perms.txt"):
+  for file_name in ["grades.txt", "feedback.txt"]:
+    if os.access(file_name, os.F_OK):
+      print("File \"" + file_name + "\" already exists. Aborting.")
+      return
   if os.access(names_perms_file, os.F_OK) != True:
     print("File \"" + names_perms_file + "\" does not exist. Aborting.")
     return
-  if os.access("grades.txt", os.F_OK):
-    print("File \"grades.txt\" already exists. Aborting.")
-    return
-  write_file = open("grades.txt", "w+")
+  write_file_grades = open("grades.txt", "w+")
+  write_file_feedback = open("feedback.txt", "w+")
   read_file = open(names_perms_file, "r+")
   for line in read_file:
     line = line.split(" ")
-    write_file.write(line[0] + " " + str(possible_points) + " " + (" ").join(line[1:]))
-  write_file.close()
+    write_file_grades.write(line[0] + " " + str(possible_points) + " " + (" ").join(line[1:]))
+    write_file_feedback.write(line[0] + " " + (" ").join(line[1:]) + "\n")
+    for num in range(1, num_questions+1):
+      write_file_feedback.write("Question " + str(num) + " Score:\n")
+      write_file_feedback.write("Feedback:\n\n")
+    write_file_feedback.write("\n")
+  write_file_grades.close()
+  write_file_feedback.close()
   read_file.close()
 
 if __name__ == '__main__':
   set_working_dir()
   mass_extract()
-  generate_blank_grading_file()
+  generate_template_files(40, 10)
