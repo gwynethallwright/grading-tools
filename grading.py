@@ -42,23 +42,31 @@ def calculate_write_scores(possible_points):
     return
   read_file = open("feedback.txt", "r+")
   write_file = open("grades.txt", "w+")
+  write_file_2 = open("feedback_2.txt", "w+")
+  print("Files \"grades.txt\" and \"feedback_2.txt\" were created.")
   name_perm = read_file.readline()
   while name_perm:
+    write_file_2.write(name_perm)
     total_score = 0
     read_file.readline()
     while True:
       score_line = read_file.readline()
       if score_line[:8] != "Question":
         break
-      read_file.readline() # Feedback
+      feedback = read_file.readline() # Feedback
+      if (feedback.split(":")[1] != "\n"):
+        write_file_2.write((" ").join(score_line.split(" ")[0:2]) + ":")
+        write_file_2.write((":").join(feedback.split(":")[1:]))
       read_file.readline() # Blank
       total_score += int(score_line.split(": ")[-1])
     write_file.write(name_perm.split(" ")[0] + " " + str(total_score) + " " + str(possible_points) + " " + (" ").join(name_perm.split(" ")[1:]))
+    write_file_2.write("Total: " + str(total_score) + "/" + str(possible_points) + "\n\n")
+    if total_score == 0:
+      print("It appears that " + name_perm[:-1] + " did not submit.")
     name_perm = read_file.readline()
-  print("File \"grades.txt\" with scores created.")
 
 if __name__ == '__main__':
-  set_working_dir()
-  mass_extract()
-  generate_template_feedback_file(10)
-  # calculate_write_scores(60)
+  # set_working_dir()
+  # mass_extract()
+  # generate_template_feedback_file(10)
+  calculate_write_scores(58)
