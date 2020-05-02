@@ -3,13 +3,26 @@ import os
 import argparse
 
 def parse_cmd_line():
-  parser = argparse.ArgumentParser(add_help=False, usage=None)
+  parser = argparse.ArgumentParser(add_help=False)
   parser.add_argument('--mode', type=str, default="c")
+  parser.add_argument('--points', type=int, default="60")
+  parser.add_argument('--questions', type=int, default="10")
+  parser.add_argument('--path', type=str, default=None)
   args = parser.parse_args()
   if ((args.mode != "c") & (args.mode != "s")):
     print("Please select either \"c\" or \"s\" when setting --mode. Aborting.")
     return -1
-  return args.mode
+  if (args.points <= 0):
+    print("Please select a nonzero integer when setting --points. Aborting.")
+    return -1
+  if (args.questions <= 0):
+    print("Please select a nonzero integer when setting --questions. Aborting.")
+    return -1
+  if args.path:
+    if not os.path.isdir(args.path):
+      print("Your --path does not represent a valid directory. Aborting.")
+      return -1
+  return [args.mode, args.points, args.questions, args.path]
 
 def set_working_dir(absolute_path = None):
   if absolute_path:
@@ -35,6 +48,7 @@ def generate_template_feedback_file(num_questions = 10, names_perms_file = "name
     print("File \"" + names_perms_file + "\" does not exist. Aborting.")
     return
   write_file_feedback = open("feedback.txt", "w+")
+  print("File \"feedback.txt\" was created.")
   read_file = open(names_perms_file, "r+")
   for line in read_file:
     line = line.split(" ")
@@ -76,13 +90,13 @@ def calculate_write_scores(possible_points):
     name_perm = read_file.readline()
 
 if __name__ == '__main__':
-  mode = parse_cmd_line()
+  [mode, possible_points, number_of_questions, path] = parse_cmd_line()
   if mode == "c":
-    set_working_dir()
+    set_working_dir(path)
     print("Create mode.")
     mass_extract()
-    generate_template_feedback_file(10)
+    generate_template_feedback_file(number_of_questions)
   elif mode == "s":
-    set_working_dir()
+    set_working_dir(path)
     print("Score mode.")
-    calculate_write_scores(100)
+    calculate_write_scores(possible_points)
