@@ -1,5 +1,15 @@
 import tarfile
 import os
+import argparse
+
+def parse_cmd_line():
+  parser = argparse.ArgumentParser(add_help=False, usage=None)
+  parser.add_argument('--mode', type=str, default="c")
+  args = parser.parse_args()
+  if ((args.mode != "c") & (args.mode != "s")):
+    print("Please select either \"c\" or \"s\" when setting --mode. Aborting.")
+    return -1
+  return args.mode
 
 def set_working_dir(absolute_path = None):
   if absolute_path:
@@ -66,7 +76,13 @@ def calculate_write_scores(possible_points):
     name_perm = read_file.readline()
 
 if __name__ == '__main__':
-  # set_working_dir()
-  # mass_extract()
-  # generate_template_feedback_file(10)
-  calculate_write_scores(58)
+  mode = parse_cmd_line()
+  if mode == "c":
+    set_working_dir()
+    print("Create mode.")
+    mass_extract()
+    generate_template_feedback_file(10)
+  elif mode == "s":
+    set_working_dir()
+    print("Score mode.")
+    calculate_write_scores(100)
