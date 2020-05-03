@@ -1,6 +1,9 @@
 import tarfile
 import os
 import argparse
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph
+from reportlab.lib.styles import getSampleStyleSheet
 
 def parse_cmd_line():
   parser = argparse.ArgumentParser(add_help=False)
@@ -60,7 +63,16 @@ def generate_template_feedback_file(num_questions = 10, names_perms_file = "name
   write_file_feedback.close()
   read_file.close()
 
-def calculate_write_scores(possible_points):
+def create_pdf(perm, feedback):
+    pdf_document = SimpleDocTemplate(perm + ".pdf", pagesize=letter)
+    styles = getSampleStyleSheet()
+    flowables = []
+    flowables.append(Paragraph(perm, style=styles["Normal"]))
+    for paragraph in feedback:
+      flowables.append(Paragraph(paragraph, style=styles["Normal"]))
+    pdf_document.build(flowables)
+
+def write_scores_feedback_pdf(possible_points):
   if (os.access("feedback.txt", os.F_OK) == False):
     print("File \"feedback.txt\" does not exist. Aborting.")
     return
@@ -70,6 +82,7 @@ def calculate_write_scores(possible_points):
   print("Files \"grades.txt\" and \"feedback_2.txt\" were created.")
   name_perm = read_file.readline()
   while name_perm:
+    feedback_list = []
     write_file_2.write(name_perm)
     total_score = 0
     read_file.readline()
@@ -79,14 +92,18 @@ def calculate_write_scores(possible_points):
         break
       feedback = read_file.readline() # Feedback
       if (feedback.split(":")[1] != "\n"):
-        write_file_2.write((" ").join(score_line.split(" ")[0:2]) + ":")
-        write_file_2.write((":").join(feedback.split(":")[1:]))
+        line_1 = (" ").join(score_line.split(" ")[0:2]) + ":"
+        line_2 = (":").join(feedback.split(":")[1:])
+        write_file_2.write(line_1)
+        write_file_2.write(line_2)
+        feedback_list.append(line_1 + " " + line_2)
       read_file.readline() # Blank
       total_score += int(score_line.split(": ")[-1])
     write_file.write(name_perm.split(" ")[0] + " " + str(total_score) + " " + str(possible_points) + " " + (" ").join(name_perm.split(" ")[1:]))
     write_file_2.write("Total: " + str(total_score) + "/" + str(possible_points) + "\n\n")
     if total_score == 0:
       print("It appears that " + name_perm[:-1] + " did not submit.")
+    create_pdf(name_perm.split(" ")[0], feedback_list)
     name_perm = read_file.readline()
 
 if __name__ == '__main__':
@@ -99,4 +116,4 @@ if __name__ == '__main__':
   elif mode == "s":
     set_working_dir(path)
     print("Score mode.")
-    calculate_write_scores(possible_points)
+    write_scores_feedback_pdf(possible_points)
