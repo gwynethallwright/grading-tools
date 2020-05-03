@@ -12,8 +12,8 @@ def parse_cmd_line():
   parser.add_argument('--questions', type=int, default="10")
   parser.add_argument('--path', type=str, default=None)
   args = parser.parse_args()
-  if ((args.mode != "c") & (args.mode != "s")):
-    print("Please select either \"c\" or \"s\" when setting --mode. Aborting.")
+  if ((args.mode != "c") & (args.mode != "s") & (args.mode != "d")):
+    print("Please select either \"c\", \"s\" or \"d\" when setting --mode. Aborting.")
     return -1
   if (args.points <= 0):
     print("Please select a nonzero integer when setting --points. Aborting.")
@@ -42,6 +42,14 @@ def mass_extract():
       num_files += 1
       os.remove(file)
   print("Number of extractions performed: " + str(num_files) + ".")
+
+def delete_pdfs():
+  num_files = 0
+  for file in os.listdir("."):
+    if file[-4:] == ".pdf":
+      os.remove(file)
+      num_files += 1
+  print("Number of deletions performed: " + str(num_files) + ".")
 
 def generate_template_feedback_file(num_questions = 10, names_perms_file = "names_perms.txt"):
   if os.access("feedback.txt", os.F_OK):
@@ -117,3 +125,7 @@ if __name__ == '__main__':
     set_working_dir(path)
     print("Score mode.")
     write_scores_feedback_pdf(possible_points)
+  elif mode == "d":
+    set_working_dir(path)
+    print("Delete mode.")
+    delete_pdfs()
