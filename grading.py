@@ -11,6 +11,7 @@ def parse_cmd_line():
   parser.add_argument('--points', type=int, default="60")
   parser.add_argument('--questions', type=int, default="10")
   parser.add_argument('--path', type=str, default=None)
+  parser.add_argument('--assign', type=int, default=1)
   args = parser.parse_args()
   if ((args.mode != "c") & (args.mode != "s") & (args.mode != "d")):
     print("Please select either \"c\", \"s\" or \"d\" when setting --mode. Aborting.")
@@ -25,7 +26,7 @@ def parse_cmd_line():
     if not os.path.isdir(args.path):
       print("Your --path does not represent a valid directory. Aborting.")
       return -1
-  return [args.mode, args.points, args.questions, args.path]
+  return [args.mode, args.points, args.questions, args.path, args.assign]
 
 def set_working_dir(absolute_path = None):
   if absolute_path:
@@ -81,7 +82,7 @@ def create_pdf(name, perm, assignment_number, feedback):
       flowables.append(Paragraph(paragraph, style=styles["Normal"]))
     pdf_document.build(flowables)
 
-def write_scores_feedback_pdf(possible_points, assignment_number=5):
+def write_scores_feedback_pdf(possible_points, assignment_number):
   if (os.access("feedback.txt", os.F_OK) == False):
     print("File \"feedback.txt\" does not exist. Aborting.")
     return
@@ -119,7 +120,7 @@ def write_scores_feedback_pdf(possible_points, assignment_number=5):
     name_perm = read_file.readline()
 
 if __name__ == '__main__':
-  [mode, possible_points, number_of_questions, path] = parse_cmd_line()
+  [mode, possible_points, number_of_questions, path, assignment_number] = parse_cmd_line()
   if mode == "c":
     set_working_dir(path)
     print("Create mode.")
@@ -128,7 +129,7 @@ if __name__ == '__main__':
   elif mode == "s":
     set_working_dir(path)
     print("Score mode.")
-    write_scores_feedback_pdf(possible_points)
+    write_scores_feedback_pdf(possible_points, assignment_number)
   elif mode == "d":
     set_working_dir(path)
     print("Delete mode.")
