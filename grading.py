@@ -112,7 +112,10 @@ def write_scores_feedback_pdf(possible_points, assignment_number=5):
     write_file_2.write("Total: " + str(total_score) + "/" + str(possible_points) + "\n\n")
     if total_score == 0:
       print("It appears that " + name_perm[:-1] + " did not submit.")
-    create_pdf((" ").join(name_perm.split(" ")[1:]), name_perm.split(" ")[0], assignment_number, feedback_list)
+    elif total_score == possible_points:
+      print("It appears that " + name_perm[:-1] + " got a perfect score.")
+    if feedback_list:
+      create_pdf((" ").join(name_perm.split(" ")[1:]), name_perm.split(" ")[0], assignment_number, feedback_list)
     name_perm = read_file.readline()
 
 if __name__ == '__main__':
