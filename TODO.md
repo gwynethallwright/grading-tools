@@ -5,3 +5,4 @@
 - Allow user to provide names of output text files.
 - If empty (or partially empty) feedback file is provided in score mode, warn instead of crashing.
 - Update usage.
+- There should be a slick way of deducting points from late submitters.
