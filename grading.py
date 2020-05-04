@@ -71,16 +71,17 @@ def generate_template_feedback_file(num_questions = 10, names_perms_file = "name
   write_file_feedback.close()
   read_file.close()
 
-def create_pdf(perm, feedback):
-    pdf_document = SimpleDocTemplate(perm + ".pdf", pagesize=letter)
+def create_pdf(name, perm, assignment_number, feedback):
+    pdf_document = SimpleDocTemplate("Homework_" + str(assignment_number) + "_" + perm + ".pdf", pagesize=letter)
     styles = getSampleStyleSheet()
     flowables = []
-    flowables.append(Paragraph(perm, style=styles["Normal"]))
+    flowables.append(Paragraph("<b>PHYS129L Homework " + str(assignment_number) + " Feedback</b>", style=styles["Title"]))
+    flowables.append(Paragraph("<b>" + name + "</b>", style=styles["Title"]))
     for paragraph in feedback:
       flowables.append(Paragraph(paragraph, style=styles["Normal"]))
     pdf_document.build(flowables)
 
-def write_scores_feedback_pdf(possible_points):
+def write_scores_feedback_pdf(possible_points, assignment_number=5):
   if (os.access("feedback.txt", os.F_OK) == False):
     print("File \"feedback.txt\" does not exist. Aborting.")
     return
@@ -104,14 +105,14 @@ def write_scores_feedback_pdf(possible_points):
         line_2 = (":").join(feedback.split(":")[1:])
         write_file_2.write(line_1)
         write_file_2.write(line_2)
-        feedback_list.append(line_1 + " " + line_2)
+        feedback_list.append("<b>" + line_1 + "</b> " + line_2)
       read_file.readline() # Blank
       total_score += int(score_line.split(": ")[-1])
     write_file.write(name_perm.split(" ")[0] + " " + str(total_score) + " " + str(possible_points) + " " + (" ").join(name_perm.split(" ")[1:]))
     write_file_2.write("Total: " + str(total_score) + "/" + str(possible_points) + "\n\n")
     if total_score == 0:
       print("It appears that " + name_perm[:-1] + " did not submit.")
-    create_pdf(name_perm.split(" ")[0], feedback_list)
+    create_pdf((" ").join(name_perm.split(" ")[1:]), name_perm.split(" ")[0], assignment_number, feedback_list)
     name_perm = read_file.readline()
 
 if __name__ == '__main__':
