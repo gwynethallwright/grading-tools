@@ -12,21 +12,26 @@ def parse_cmd_line():
   parser.add_argument('--questions', type=int, default="10")
   parser.add_argument('--path', type=str, default=None)
   parser.add_argument('--assign', type=int, default=1)
+  parser.add_argument('--input', type=str, required=True)
   args = parser.parse_args()
+  status = 0
   if ((args.mode != "c") & (args.mode != "s") & (args.mode != "d")):
     print("Please select either \"c\", \"s\" or \"d\" when setting --mode. Aborting.")
-    return -1
-  if (args.points <= 0):
+    status = -1
+  elif (args.points <= 0):
     print("Please select a nonzero integer when setting --points. Aborting.")
-    return -1
-  if (args.questions <= 0):
+    status = -1
+  elif (args.questions <= 0):
     print("Please select a nonzero integer when setting --questions. Aborting.")
-    return -1
-  if args.path:
+    status = -1
+  elif args.path:
     if not os.path.isdir(args.path):
       print("Your --path does not represent a valid directory. Aborting.")
-      return -1
-  return [args.mode, args.points, args.questions, args.path, args.assign]
+      status = -1
+  elif not os.path.isfile(args.input):
+    print("The file \"" + args.input + "\" does not exist. Aborting.")
+    status = -1
+  return [status, args.mode, args.points, args.questions, args.path, args.assign, args.input]
 
 def set_working_dir(absolute_path = None):
   if absolute_path:
@@ -52,12 +57,9 @@ def delete_pdfs():
       num_files += 1
   print("Number of deletions performed: " + str(num_files) + ".")
 
-def generate_template_feedback_file(num_questions = 10, names_perms_file = "names_perms.txt"):
+def generate_template_feedback_file(names_perms_file, num_questions = 10):
   if os.access("feedback.txt", os.F_OK):
     print("File \"feedback.txt\" already exists. Aborting.")
-    return
-  if os.access(names_perms_file, os.F_OK) != True:
-    print("File \"" + names_perms_file + "\" does not exist. Aborting.")
     return
   write_file_feedback = open("feedback.txt", "w+")
   print("File \"feedback.txt\" was created.")
@@ -120,17 +122,18 @@ def write_scores_feedback_pdf(possible_points, assignment_number):
     name_perm = read_file.readline()
 
 if __name__ == '__main__':
-  [mode, possible_points, number_of_questions, path, assignment_number] = parse_cmd_line()
-  if mode == "c":
-    set_working_dir(path)
-    print("Create mode.")
-    mass_extract()
-    generate_template_feedback_file(number_of_questions)
-  elif mode == "s":
-    set_working_dir(path)
-    print("Score mode.")
-    write_scores_feedback_pdf(possible_points, assignment_number)
-  elif mode == "d":
-    set_working_dir(path)
-    print("Delete mode.")
-    delete_pdfs()
+  [status, mode, possible_points, number_of_questions, path, assignment_number, input_file] = parse_cmd_line()
+  if status == 0:
+    if mode == "c":
+      set_working_dir(path)
+      print("Create mode.")
+      mass_extract()
+      generate_template_feedback_file(input_file, number_of_questions)
+    elif mode == "s":
+      set_working_dir(path)
+      print("Score mode.")
+      write_scores_feedback_pdf(possible_points, assignment_number)
+    elif mode == "d":
+      set_working_dir(path)
+      print("Delete mode.")
+      delete_pdfs()
