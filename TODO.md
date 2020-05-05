@@ -7,3 +7,4 @@
 - If empty (or partially empty) feedback file is provided in score mode, warn instead of crashing.
 - Update usage.
 - There should be a slick way of deducting points from late submitters.
+- Since the Physics Department wants all TAs to submit timesheets, add time mode to keep track of hours spent on grading. Additionally, broadcast audio reminders to get up and take a break.
