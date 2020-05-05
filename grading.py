@@ -4,6 +4,7 @@ import argparse
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph
 from reportlab.lib.styles import getSampleStyleSheet
+from PyPDF2 import PdfFileReader, PdfFileWriter
 
 def parse_cmd_line():
   parser = argparse.ArgumentParser(add_help=False)
@@ -84,6 +85,24 @@ def create_pdf(name, perm, assignment_number, feedback):
       flowables.append(Paragraph(paragraph, style=styles["Normal"]))
     pdf_document.build(flowables)
 
+def encrypt_pdfs():
+  num_files = 0
+  for file in os.listdir("."):
+    if (file[-4:] == ".pdf") & (file[-13:] != "Encrypted.pdf"):
+      input_file = open(file, "rb")
+      input_pdf = PdfFileReader(input_file)
+      output_pdf = PdfFileWriter()
+      output_pdf.appendPagesFromReader(input_pdf)
+      output_pdf.encrypt(file.split("_")[-1][:-4])
+      output_file = open(file[:-4] + "_Encrypted.pdf", "wb")
+      output_pdf.write(output_file)
+      input_file.close()
+      output_file.close()
+      os.remove(file)
+      num_files += 1
+  print("Number of files encrypted: " + str(num_files))
+  return
+
 def write_scores_feedback_pdf(possible_points, assignment_number):
   if (os.access("feedback.txt", os.F_OK) == False):
     print("File \"feedback.txt\" does not exist. Aborting.")
@@ -133,6 +152,7 @@ if __name__ == '__main__':
       set_working_dir(path)
       print("Score mode.")
       write_scores_feedback_pdf(possible_points, assignment_number)
+      encrypt_pdfs()
     elif mode == "d":
       set_working_dir(path)
       print("Delete mode.")
